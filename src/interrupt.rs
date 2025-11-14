@@ -190,18 +190,27 @@ fn enter(cs: &IsrCriticalSection) {
 #[cfg(not(any(esp32, esp32s2, esp32s3, esp32p4)))]
 #[inline(always)]
 #[link_section = ".iram1.interrupt_exit"]
-fn exit(_cs: &IsrCriticalSection) {
+fn exit_critical(_cs: &IsrCriticalSection) {
     unsafe {
         vPortExitCritical();
     }
 }
 
-#[cfg(any(esp32, esp32s2, esp32s3, esp32p4))]
+#[cfg(any(esp32, esp32s2, esp32s3))]
 #[inline(always)]
 #[link_section = ".iram1.interrupt_exit"]
-fn exit(cs: &IsrCriticalSection) {
+fn exit_critical(cs: &IsrCriticalSection) {
     unsafe {
         vPortExitCritical(cs.0.get());
+    }
+}
+
+#[cfg(esp32p4)]
+#[inline(always)]
+#[link_section = ".iram1.interrupt_exit"]
+fn exit_critical(_cs: &IsrCriticalSection) {
+    unsafe {
+        vPortExitCritical();
     }
 }
 
@@ -269,7 +278,7 @@ impl Drop for IsrCriticalSectionGuard<'_> {
     /// disabled interrupts for the concrete core is dropped.
     #[inline(always)]
     fn drop(&mut self) {
-        exit(self.0);
+        exit_critical(self.0);
     }
 }
 

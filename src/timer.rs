@@ -80,6 +80,9 @@ pub mod config {
         #[cfg(any(esp32c5, esp32c6, esp32c61))]
         #[default]
         PLL80,
+        #[cfg(esp32p4)]
+        #[default]
+        PLL160,
         #[cfg(not(esp32))]
         XTAL,
     }
@@ -101,6 +104,11 @@ pub mod config {
                 }
                 #[cfg(any(esp32c5, esp32c6, esp32c61))]
                 ClockSource::PLL80 => {
+                    esp_idf_sys::soc_periph_tg_clk_src_legacy_t_TIMER_SRC_CLK_PLL_F80M
+                }
+                #[cfg(esp32p4)]
+                ClockSource::PLL160 => {
+                    // P4暂时使用PLL_F80M，等ESP-IDF添加PLL_F160M支持后更新
                     esp_idf_sys::soc_periph_tg_clk_src_legacy_t_TIMER_SRC_CLK_PLL_F80M
                 }
                 #[cfg(not(esp32))]
@@ -225,6 +233,10 @@ impl<'d> TimerDriver<'d> {
                     hz = 48_000_000 / self.divider;
                 }
                 #[cfg(any(esp32c5, esp32c6, esp32c61))] //PLL80
+                {
+                    hz = 80_000_000 / self.divider;
+                }
+                #[cfg(esp32p4)] //P4 uses PLL80 (暂时，等ESP-IDF支持PLL160后更新)
                 {
                     hz = 80_000_000 / self.divider;
                 }
