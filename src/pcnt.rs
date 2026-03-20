@@ -168,19 +168,10 @@ pub mod config {
             pcnt_unit_config_t {
                 low_limit: value.low_limit,
                 high_limit: value.high_limit,
+                clk_src: soc_periph_pcnt_clk_src_t_PCNT_CLK_SRC_DEFAULT,
                 intr_priority: value.intr_priority,
                 flags: pcnt_unit_config_t__bindgen_ty_1 {
-                    _bitfield_1: pcnt_unit_config_t__bindgen_ty_1::new_bitfield_1(
-                        value.accum_count as u32,
-                        #[cfg(esp_idf_soc_pcnt_support_step_notify)]
-                        {
-                            0
-                        },
-                        #[cfg(esp_idf_soc_pcnt_support_step_notify)]
-                        {
-                            0
-                        },
-                    ),
+                    _bitfield_1: pcnt_unit_config_t__bindgen_ty_1::new_bitfield_1(value.accum_count as u32),
                     ..Default::default()
                 },
             }
@@ -571,9 +562,11 @@ struct DelegateUserData<'d> {
 ///
 /// Each driver has a counter, which can be controlled by one or more channels,
 /// that have to be added with [`PcntUnitDriver::add_channel`].
+const PCNT_CHANNEL_CAPACITY: usize = 2;
+
 pub struct PcntUnitDriver<'d> {
     handle: pcnt_unit_handle_t,
-    channels: Vec<PcntChannel<'d>, { SOC_PCNT_CHANNELS_PER_UNIT as usize }>,
+    channels: Vec<PcntChannel<'d>, PCNT_CHANNEL_CAPACITY>,
     #[cfg(feature = "alloc")]
     user_data: Option<Pin<Box<DelegateUserData<'d>>>>,
     _p: PhantomData<&'d mut ()>,

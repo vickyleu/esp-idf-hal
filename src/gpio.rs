@@ -804,19 +804,7 @@ impl<'d, MODE> PinDriver<'d, MODE> {
         MODE: OutputMode,
     {
         // TODO: Implement for RTC mode
-
-        let pin = self.pin as u32;
-
-        #[cfg(any(esp32c3, esp32c2, esp32h2, esp32h4))]
-        let is_set_high = unsafe { (*(GPIO_OUT_REG as *const u32) >> pin) & 0x01 != 0 };
-        #[cfg(not(any(esp32c3, esp32c2, esp32h2, esp32h4)))]
-        let is_set_high = if pin <= 31 {
-            // GPIO0 - GPIO31
-            unsafe { (*(GPIO_OUT_REG as *const u32) >> pin) & 0x01 != 0 }
-        } else {
-            // GPIO32+
-            unsafe { (*(GPIO_OUT1_REG as *const u32) >> (pin - 32)) & 0x01 != 0 }
-        };
+        let is_set_high = unsafe { gpio_get_level(self.pin as _) } != 0;
 
         if is_set_high {
             Level::High

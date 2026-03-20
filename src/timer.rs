@@ -276,6 +276,12 @@ impl<'d> TimerDriver<'d> {
             #[cfg(esp_idf_version_at_least_5_1_2)]
             intr_priority: config.intr_priority,
             flags: gptimer_config_t__bindgen_ty_1 {
+                #[cfg(esp_idf_version_at_least_6_0_0)]
+                _bitfield_1: gptimer_config_t__bindgen_ty_1::new_bitfield_1(
+                    config.intr_shared as _,
+                    config.allow_pd as _,
+                ),
+                #[cfg(not(esp_idf_version_at_least_6_0_0))]
                 _bitfield_1: gptimer_config_t__bindgen_ty_1::new_bitfield_1(
                     config.intr_shared as _,
                     #[cfg(esp_idf_version_at_least_5_4_0)]
